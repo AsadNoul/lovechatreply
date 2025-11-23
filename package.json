@@ -1,0 +1,42 @@
+{
+  "name": "lovechatreply",
+  "version": "1.0.0",
+  "description": "An app for crafting romantic messages and relationship advice",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.72.0",
+    "@react-navigation/native": "^6.1.7",
+    "@react-navigation/stack": "^6.3.17",
+    "react-native-gesture-handler": "^2.12.0",
+    "react-native-reanimated": "^3.3.0",
+    "react-native-safe-area-context": "^4.6.3",
+    "react-native-screens": "^3.22.0",
+    "react-native-vector-icons": "^10.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/runtime": "^7.22.5",
+    "@react-native/eslint-config": "^0.72.2",
+    "@react-native/metro-config": "^0.72.7",
+    "babel-jest": "^29.5.0",
+    "eslint": "^8.42.0",
+    "jest": "^29.5.0",
+    "metro-react-native-babel-preset": "^0.76.5"
+  },
+  "keywords": [
+    "react-native",
+    "dating",
+    "relationship",
+    "messaging"
+  ],
+  "author": "",
+  "license": "MIT"
+}
