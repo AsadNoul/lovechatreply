@@ -8,32 +8,25 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
-
-const historyItems = [
-  {
-    id: 1,
-    scenario: 'Good morning message',
-    tone: 'Sincere',
-    date: 'Today, 9:30 AM',
-    preview: 'Good morning, beautiful! Hope you have an amazing day ahead...',
-  },
-  {
-    id: 2,
-    scenario: 'Thinking of you',
-    tone: 'Romantic',
-    date: 'Yesterday, 3:45 PM',
-    preview: "Just wanted to let you know that you're on my mind...",
-  },
-  {
-    id: 3,
-    scenario: 'Apology - I messed up',
-    tone: 'Apology',
-    date: 'Dec 20, 2023',
-    preview: "I'm really sorry about what happened. I didn't mean to...",
-  },
-];
+import { useApp } from '../context/AppContext';
 
 export default function HistoryScreen() {
+  const { history } = useApp();
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      return `Today, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+    } else if (days === 1) {
+      return `Yesterday, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -46,8 +39,8 @@ export default function HistoryScreen() {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {historyItems.length > 0 ? (
-          historyItems.map((item) => (
+        {history.length > 0 ? (
+          history.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.historyCard}
@@ -69,7 +62,7 @@ export default function HistoryScreen() {
               <Text style={styles.historyPreview} numberOfLines={2}>
                 {item.preview}
               </Text>
-              <Text style={styles.historyDate}>{item.date}</Text>
+              <Text style={styles.historyDate}>{formatDate(item.date)}</Text>
             </TouchableOpacity>
           ))
         ) : (

@@ -55,7 +55,7 @@ export default function ScenariosScreen({ navigation }) {
                   <ScenarioCard
                     scenario={scenario}
                     isCustom
-                    onPress={() => {}}
+                    onPress={() => navigation.navigate('CustomScenario')}
                   />
                 </View>
               );

@@ -4,41 +4,80 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
+  TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
 import { tones, languages, lengths } from '../constants/scenarios';
 import OptionSelector from '../components/OptionSelector';
 import Picker from '../components/Picker';
 import Button from '../components/Button';
 import { useApp } from '../context/AppContext';
-import { generateMessages } from '../services/messageGenerator';
+import { generateCustomMessage } from '../services/messageGenerator';
 
-export default function ScenarioDetailScreen({ route, navigation }) {
-  const { scenario } = route.params;
-  const { canGenerateMessage, addToHistory, getRemainingReplies } = useApp();
+export default function CustomScenarioScreen({ navigation }) {
+  const { canGenerateMessage, addToHistory } = useApp();
 
+  const [prompt, setPrompt] = useState('');
   const [selectedTone, setSelectedTone] = useState('Romantic');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedLength, setSelectedLength] = useState('Short');
   const [loading, setLoading] = useState(false);
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: scenario.title,
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ marginLeft: 16 }}
-        >
-          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, scenario.title]);
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      Alert.alert('Missing Information', 'Please describe what you want to say.');
+      return;
+    }
+
+    if (!canGenerateMessage()) {
+      Alert.alert(
+        'Limit Reached',
+        'You have used all your daily replies. Upgrade to Pro for unlimited messages!',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Upgrade',
+            onPress: () => navigation.navigate('Subscription'),
+          },
+        ]
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const messages = await generateCustomMessage(
+        prompt,
+        selectedTone,
+        selectedLanguage,
+        selectedLength
+      );
+
+      addToHistory({
+        scenario: 'Custom: ' + prompt.substring(0, 30) + '...',
+        tone: selectedTone,
+        language: selectedLanguage,
+        length: selectedLength,
+        messages,
+        preview: messages[0],
+        selectedMessage: 0,
+      });
+
+      navigation.navigate('MessageResults', {
+        messages,
+        scenario: { title: 'Custom Message', description: prompt },
+        tone: selectedTone,
+        language: selectedLanguage,
+        length: selectedLength,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate messages. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -48,7 +87,26 @@ export default function ScenarioDetailScreen({ route, navigation }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Description */}
-        <Text style={styles.description}>{scenario.description}</Text>
+        <Text style={styles.description}>
+          Describe what you want to say, and we'll help you craft the perfect
+          message!
+        </Text>
+
+        {/* Prompt Input */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>What do you want to say?</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="e.g., I want to tell my partner I appreciate them..."
+            placeholderTextColor={Colors.textLight}
+            multiline
+            numberOfLines={4}
+            value={prompt}
+            onChangeText={setPrompt}
+            textAlignVertical="top"
+          />
+          <Text style={styles.charCount}>{prompt.length}/200</Text>
+        </View>
 
         {/* Tone Selector */}
         <View style={styles.section}>
@@ -93,60 +151,9 @@ export default function ScenarioDetailScreen({ route, navigation }) {
           </Text>
         )}
         <Button
-          title={
-            loading
-              ? 'Generating...'
-              : `Generate replies for this scenario`
-          }
+          title={loading ? 'Generating...' : 'Generate Messages'}
           variant="primary"
-          onPress={async () => {
-            if (!canGenerateMessage()) {
-              Alert.alert(
-                'Limit Reached',
-                'You have used all your daily replies. Upgrade to Pro for unlimited messages!',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Upgrade',
-                    onPress: () => navigation.navigate('Subscription'),
-                  },
-                ]
-              );
-              return;
-            }
-
-            setLoading(true);
-            try {
-              const messages = await generateMessages(
-                scenario,
-                selectedTone,
-                selectedLanguage,
-                selectedLength
-              );
-
-              addToHistory({
-                scenario: scenario.title,
-                tone: selectedTone,
-                language: selectedLanguage,
-                length: selectedLength,
-                messages,
-                preview: messages[0],
-                selectedMessage: 0,
-              });
-
-              navigation.navigate('MessageResults', {
-                messages,
-                scenario,
-                tone: selectedTone,
-                language: selectedLanguage,
-                length: selectedLength,
-              });
-            } catch (error) {
-              Alert.alert('Error', 'Failed to generate messages. Please try again.');
-            } finally {
-              setLoading(false);
-            }
-          }}
+          onPress={handleGenerate}
           style={!canGenerateMessage() && styles.buttonDisabled}
         />
         {loading && (
@@ -187,27 +194,28 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginBottom: 16,
   },
+  textInput: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 16,
+    color: Colors.textPrimary,
+    minHeight: 120,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  charCount: {
+    fontSize: 12,
+    color: Colors.textLight,
+    textAlign: 'right',
+    marginTop: 8,
+  },
   row: {
     flexDirection: 'row',
     gap: 16,
   },
   column: {
     flex: 1,
-  },
-  dropdown: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: Colors.textPrimary,
   },
   buttonContainer: {
     padding: 24,

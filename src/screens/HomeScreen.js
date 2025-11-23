@@ -11,9 +11,12 @@ import { Colors } from '../constants/colors';
 import { scenarios } from '../constants/scenarios';
 import ScenarioCard from '../components/ScenarioCard';
 import Button from '../components/Button';
+import { useApp } from '../context/AppContext';
 
 export default function HomeScreen({ navigation }) {
+  const { user, getRemainingReplies, totalMessagesGenerated } = useApp();
   const featuredScenarios = scenarios.slice(1, 4); // Get first 3 non-custom scenarios
+  const remainingReplies = getRemainingReplies();
 
   return (
     <View style={styles.container}>
@@ -25,7 +28,7 @@ export default function HomeScreen({ navigation }) {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Hello! 👋</Text>
+            <Text style={styles.greeting}>Hello, {user.name}! 👋</Text>
             <Text style={styles.title}>What would you like to say?</Text>
           </View>
           <TouchableOpacity
@@ -33,18 +36,20 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Subscription')}
           >
             <Ionicons name="star" size={20} color={Colors.primary} />
-            <Text style={styles.proButtonText}>Pro</Text>
+            <Text style={styles.proButtonText}>{user.isPro ? 'Pro ✓' : 'Upgrade'}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>5</Text>
+            <Text style={styles.statNumber}>
+              {user.isPro ? '∞' : remainingReplies}
+            </Text>
             <Text style={styles.statLabel}>Replies Left Today</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>12</Text>
+            <Text style={styles.statNumber}>{totalMessagesGenerated}</Text>
             <Text style={styles.statLabel}>Total Messages</Text>
           </View>
         </View>
