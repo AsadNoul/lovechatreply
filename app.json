@@ -29,4 +29,7 @@
       "favicon": "./assets/favicon.png"
     }
   }
+  "name": "lovechatreply",
+  "displayName": "LoveChatReply",
+  "version": "1.0.0"
 }
