@@ -1,4 +1,34 @@
 {
+  "expo": {
+    "name": "HeartReply",
+    "slug": "heartreply",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFE5EC"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heartreply.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFE5EC"
+      },
+      "package": "com.heartreply.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
   "name": "lovechatreply",
   "displayName": "LoveChatReply",
   "version": "1.0.0"
